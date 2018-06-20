@@ -1,0 +1,46 @@
+---
+# tasks file for rsync-server
+
+- name: install rsync
+  yum:
+    pkg: rsync
+    state: present
+
+- name: create log directory
+  file:
+    path: /var/log/rsyncd
+    state: directory
+
+# No need to reload, config is re-read on each client connection
+- name: configure shares
+  template:
+    src: etc/rsyncd.conf.j2
+    dest: /etc/rsyncd.conf
+
+- name: configure logrotate
+  template:
+    src: logrotate.d/rsyncd.j2
+    dest: /etc/logrotate.d/rsyncd
+
+- name: start and enable service
+  service:
+    name: rsyncd
+    enabled: yes
+    daemon_reload: yes
+    state: started
+
+- name: ensure secrets file exists
+  copy:
+    content: "{{ rsync_secrets }}"
+    force: no
+    dest: "{{ rsync_secrets_path }}"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: open firewall
+  firewalld:
+    port: 873/tcp
+    state: enabled
+    permanent: yes
+    immediate: yes

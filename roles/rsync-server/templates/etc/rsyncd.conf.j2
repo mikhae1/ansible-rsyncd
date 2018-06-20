@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+
+[global]
+timeout = {{ rsync_server_timeout }}
+max connections = {{ rsync_server_max_connections }}
+log file = /var/log/rsyncd/rsyncd.log
+secrets file = {{ rsync_secrets_path }}
+
+
+{% for share in rsync_server_shares %}
+[{{ share.name }}]
+path = {{ share.path }}
+comment = {{ share.comment | default(share.path) }}
+read only = {{ share.readonly | default(True) | ternary('true', 'false' ) }}
+uid = {{ share.uid | default('nobody') }}
+gid = {{ share.gid | default('nobody') }}
+exclude = {{ share.excludes | default(['lost+found']) | join(' ') }}
+{% if share.auth_users is defined %}
+auth users = {{ share.auth_users }}
+{% endif %}
+{% endfor %}

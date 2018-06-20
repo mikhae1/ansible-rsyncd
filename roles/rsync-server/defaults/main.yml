@@ -1,0 +1,8 @@
+---
+# defaults file for rsync-server
+
+rsync_server_timeout: 300
+rsync_server_max_connections: 10
+rsync_server_shares: []
+rsync_secrets_path: /etc/rsyncd.secrets
+rsync_secrets: ''
